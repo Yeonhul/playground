@@ -1,0 +1,115 @@
+/* Common */
+html,
+body {
+    font-family: "Noto Sans KR", sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+    color: #272727;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+p {
+    margin: 0;
+    padding: 0;
+}
+
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+img {
+    vertical-align: middle;
+}
+
+button,
+input,
+select,
+textarea,
+pre {
+    font-family: "Noto Sans KR", sans-serif;
+    font-size: 14px;
+    outline: none;
+}
+
+a {
+    cursor: pointer;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+/* Layout */
+.wrap {
+    min-width: 1260px;
+}
+
+.mainCtn {
+    margin: 0 auto;
+    width: 1260px;
+}
+
+.grayCon {
+    background-color: #f7f7f7;
+
+    .grayWrap {
+        margin: 0 auto;
+    }
+}
+
+.lineCon {
+    border-top: 1px solid #f7f7f7;
+
+    .lineWrap {
+        margin: 0 auto;
+    }
+}
+body {
+    .el-input__inner:read-only,
+    .el-input--small .el-input__inner:read-only,
+    .el-textarea__inner:read-only {
+        background-color: #fafafa;
+    }
+
+    .el-date-editor.el-input__inner:read-only,
+    .el-cascader .el-input__inner:read-only,
+    .el-select .el-input__inner:read-only {
+        background-color: #fff;
+    }
+
+    .el-date-editor--daterange.el-input,
+    .el-date-editor--daterange.el-input__inner,
+    .el-date-editor--timerange.el-input,
+    .el-date-editor--timerange.el-input__inner {
+        width: 260px;
+    }
+}
+
+.ctnWrap.portal a {
+    color: #1d63a3;
+    text-decoration: none;
+    line-height: 30px;
+}
+
+.contentHead.common h3 {
+    padding: 30px;
+}
+
+.contentBody.line {
+    margin: 20px 0;
+    background-color: transparent;
+    border: 1px solid rgb(209, 209, 209);
+
+    h4 {
+        padding: 0 0 10px 0;
+    }
+}
