@@ -8,9 +8,8 @@ const count = ref(0);
 const text = ref("");
 const isComposition = ref(false);
 const startTime = ref(null);
-const lastTime = ref(null);
 const keyStorkes = ref(0);
-const cpm = ref(0);
+const displayCPM = ref(0);
 const typingList = ref([]);
 const keyBanList = [
 	{ code: 8, key: "Backspace" },
@@ -85,34 +84,41 @@ const inputEnd = e => {
 let intervalCPM = null;
 let countAnimate = null;
 
+const cpm = ref(0);
+
 const calcCPM = () => {
 	// 천천히 증가하는 기능
 	const elapsedTime = Date.now() - startTime.value;
 	const newCPM = nuxtApp.$_.floor((keyStorkes.value / elapsedTime) * 60000);
-	if (countAnimate?.isRunning()) countAnimate.stop();
-	else cpm.value = newCPM;
-	countAnimate = countAnimateCreater(newCPM);
+	cpm.value = newCPM;
+
+	if (!countAnimate?.isRunning()) {
+		displayCPM.value = newCPM;
+		countAnimate = countAnimateCreater();
+	}
 };
 
-const countAnimateCreater = count => {
+const countAnimateCreater = () => {
 	const interval = new Interval(() => {
-		if (count === cpm.value) return interval.stop();
-		else if (count > cpm.value) cpm.value++;
-		else if (count < cpm.value) cpm.value--;
-	}, 12);
+		// if (count === cpm.value) return interval.stop();
+		if (cpm.value - displayCPM.value > 50 || cpm.value - displayCPM.value < -50) displayCPM.value = cpm.value;
+		else if (cpm.value > displayCPM.value) displayCPM.value++;
+		else if (cpm.value < displayCPM.value) displayCPM.value--;
+	}, 25);
 	interval.start();
 	return interval;
 };
 
 const submit = () => {
 	if (acc.value !== 100) return; // ACC가 100이 아닐 때,
-	console.log("CPM : ", cpm.value);
 	count.value++;
-	cpm.value = 0;
-	text.value = "";
-	startTime.value = null;
-	keyStorkes.value = 0;
-	intervalCPM.stop();
+	displayCPM.value = 0; // CPM 초가화
+	cpm.value = 0; // CPM 초가화
+	text.value = ""; // 입력값 초기화
+	startTime.value = null; // 시작시간 초기화
+	keyStorkes.value = 0; // 입력한 타수 초기화
+	intervalCPM.stop(); // CPM 체크함수 중지
+	countAnimate.stop(); // CPM 애니메이션 함수 중지
 };
 
 onMounted(() => {
@@ -144,7 +150,7 @@ onMounted(() => {
 				{{ item }}
 			</span>
 			<br />
-			<p>CPM: {{ cpm }}</p>
+			<p>CPM: {{ displayCPM }}</p>
 			<p>ACC: {{ acc }}</p>
 			<p>CNT: {{ count }}</p>
 		</div>
