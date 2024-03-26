@@ -11,6 +11,7 @@ const startTime = ref(null);
 const lastTime = ref(null);
 const keyStorkes = ref(0);
 const cpm = ref(0);
+const typingList = ref([]);
 const keyBanList = [
 	{ code: 8, key: "Backspace" },
 	{ code: 9, key: "Tab" },
@@ -62,9 +63,11 @@ const classText = computed(() => {
 	return marked;
 });
 
-const typingText = computed(() => typingData[count.value].content);
+const typingText = computed(() => {
+	return typingList.value[count.value]?.content;
+});
 
-const splitTypingText = computed(() => typingText.value.split(""));
+const splitTypingText = computed(() => typingText.value?.split(""));
 
 const acc = computed(() => {
 	if (!startTime.value) return 0;
@@ -84,32 +87,35 @@ let countAnimate = null;
 
 const calcCPM = () => {
 	// 천천히 증가하는 기능
-	if (countAnimate) clearInterval(countAnimate);
 	const elapsedTime = Date.now() - startTime.value;
 	const newCPM = nuxtApp.$_.floor((keyStorkes.value / elapsedTime) * 60000);
+	if (countAnimate?.isRunning()) countAnimate.stop();
+	else cpm.value = newCPM;
 	countAnimate = countAnimateCreater(newCPM);
 };
 
 const countAnimateCreater = count => {
-	const interval = setInterval(() => {
-		if (count === cpm.value) return clearInterval(interval);
+	const interval = new Interval(() => {
+		if (count === cpm.value) return interval.stop();
 		else if (count > cpm.value) cpm.value++;
 		else if (count < cpm.value) cpm.value--;
 	}, 12);
+	interval.start();
 	return interval;
 };
 
 const submit = () => {
 	if (acc.value !== 100) return; // ACC가 100이 아닐 때,
+	console.log("CPM : ", cpm.value);
 	count.value++;
 	cpm.value = 0;
 	text.value = "";
 	startTime.value = null;
 	keyStorkes.value = 0;
+	intervalCPM.stop();
 };
 
 onMounted(() => {
-	console.log(typingData);
 	// 양방향 바인딩 필요
 	useEventListener(inputRef.value.ref, "input", e => {
 		text.value = e.currentTarget.value;
@@ -123,21 +129,17 @@ onMounted(() => {
 		keyStorkes.value++;
 		if (!startTime.value) {
 			startTime.value = Date.now();
-			intervalCPM = setInterval(calcCPM, 200);
+			if (!intervalCPM) intervalCPM = new Interval(calcCPM, 200);
+			intervalCPM.start();
 		}
 	});
+
+	typingList.value = nuxtApp.$_.shuffle(typingData);
 });
 </script>
 <template>
 	<div style="margin-top: 40px">
 		<div style="margin-bottom: 20px">
-			<!-- <div style="position: relative">
-				<div style="position: absolute; top: 0; left: 0">{{ typingText }}</div>
-			</div> -->
-			<br />
-			<br />
-			<br />
-			<br />
 			<span v-for="(item, index) in splitTypingText" :key="index" :class="{ error: classText.includes(index), classText: true }">
 				{{ item }}
 			</span>
