@@ -1,6 +1,8 @@
 <script setup>
 import { useEventListener } from "@vueuse/core";
 import typingData from "@/assets/json/typing.json";
+import typingAudio from "@/assets/sounds/typing.mp3";
+import enterAudio from "@/assets/sounds/enter.mp3";
 const nuxtApp = useNuxtApp();
 const inputRef = ref(null);
 // const typingText = ref("두려움이 있음에도 불구하고, 계속하기 위해 용기를 가져라.");
@@ -47,6 +49,7 @@ const keyBanList = [
 	{ code: 144, key: "NumLock" },
 	{ code: 145, key: "ScrollLock" }
 ];
+const completeList = ref([]);
 const classText = computed(() => {
 	const marked = [];
 	nuxtApp.$_.forEach(text.value, (value, index) => {
@@ -111,6 +114,7 @@ const countAnimateCreater = () => {
 
 const submit = () => {
 	if (acc.value !== 100) return; // ACC가 100이 아닐 때,
+	completeList.value.push(typingText.value);
 	count.value++;
 	displayCPM.value = 0; // CPM 초가화
 	cpm.value = 0; // CPM 초가화
@@ -129,9 +133,14 @@ onMounted(() => {
 
 	useEventListener(inputRef.value.ref, "keydown", e => {
 		if (nuxtApp.$_.find(keyBanList, { code: e.keyCode })) return;
+		const enterSound = new Audio(enterAudio);
+		const keySound = new Audio(typingAudio);
 		if (e.keyCode === 13) {
+			enterSound.play();
 			return submit();
 		}
+
+		keySound.play();
 		keyStorkes.value++;
 		if (!startTime.value) {
 			startTime.value = Date.now();
@@ -144,17 +153,30 @@ onMounted(() => {
 });
 </script>
 <template>
-	<div style="margin-top: 40px">
-		<div style="margin-bottom: 20px">
-			<span v-for="(item, index) in splitTypingText" :key="index" :class="{ error: classText.includes(index), classText: true }">
-				{{ item }}
-			</span>
-			<br />
-			<p>CPM: {{ displayCPM }}</p>
-			<p>ACC: {{ acc }}</p>
-			<p>CNT: {{ count }}</p>
+	<div class="wrap">
+		<div class="contentBox">
+			<div class="chatBox itemBox">
+				<div class="paper" :data-paper="completeList.length">
+					<span v-for="(item, index) in completeList" :key="index"> {{ item }}</span>
+				</div>
+				<div class="print">
+					<span
+						v-for="(item, index) in splitTypingText"
+						:key="index"
+						:class="{ error: classText.includes(index), classText: true }"
+					>
+						{{ item }}
+					</span>
+					<br />
+				</div>
+				<el-input ref="inputRef" v-model="text" spellcheck="false" @compositionstart="inputStart" @compositionend="inputEnd" />
+			</div>
+			<div class="infoBox itemBox">
+				<p>CPM: {{ displayCPM }}</p>
+				<p>ACC: {{ acc }}</p>
+				<p>CNT: {{ count }}</p>
+			</div>
 		</div>
-		<el-input ref="inputRef" v-model="text" spellcheck="false" @compositionstart="inputStart" @compositionend="inputEnd" />
 	</div>
 </template>
 
@@ -174,6 +196,69 @@ onMounted(() => {
 			left: 50%;
 			transform: translate(-50%, -50%);
 			color: red;
+		}
+	}
+}
+
+.wrap {
+	max-width: 1260px;
+	min-height: 100vh;
+	position: relative;
+	margin: 0 auto;
+	.contentBox {
+		position: absolute;
+		width: 100%;
+		margin: 0 auto;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+		gap: 0.5rem;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		.itemBox {
+			/* background-color: #fff; */
+			background-color: rgba($color: #fff, $alpha: 1);
+			border-radius: 10px;
+			padding: 30px;
+			width: 100%;
+			box-sizing: border-box;
+		}
+		.infoBox {
+			position: relative;
+			z-index: 1;
+			padding: 15px 30px;
+			display: flex;
+			justify-content: space-around;
+			/* gap: 0.5rem; */
+		}
+		.chatBox {
+			position: relative;
+			z-index: 10;
+			.print {
+				position: relative;
+				z-index: 10;
+				padding-bottom: 20px;
+			}
+		}
+	}
+
+	.paper {
+		box-sizing: border-box;
+		background-color: #e0d2af;
+		padding: 20px 30px;
+		display: flex;
+		flex-direction: column;
+		width: 90%;
+		gap: 1rem;
+		position: absolute;
+		top: 0;
+		left: 50%;
+		transform: translate(-50%, calc(-100% + 0px));
+		z-index: 0;
+		&[data-paper="0"] {
+			padding: 0;
 		}
 	}
 }
