@@ -50,6 +50,7 @@ const keyBanList = [
 	{ code: 145, key: "ScrollLock" }
 ];
 const completeList = ref([]);
+
 const classText = computed(() => {
 	const marked = [];
 	nuxtApp.$_.forEach(text.value, (value, index) => {
@@ -114,6 +115,8 @@ const countAnimateCreater = () => {
 
 const submit = () => {
 	if (acc.value !== 100) return; // ACC가 100이 아닐 때,
+	if (completeList.value.length === 10) completeList.value = [];
+
 	completeList.value.push(typingText.value);
 	count.value++;
 	displayCPM.value = 0; // CPM 초가화
@@ -156,7 +159,8 @@ onMounted(() => {
 	<div class="wrap">
 		<div class="contentBox">
 			<div class="chatBox itemBox">
-				<div class="paper" :data-paper="completeList.length">
+				<div v-auto-animate :data-paper="completeList.length" :class="{ paper: true, stacked1: count > 10, stacked2: count > 20 }">
+					<!-- <div class="page"></div> -->
 					<span v-for="(item, index) in completeList" :key="index"> {{ item }}</span>
 				</div>
 				<div class="print">
@@ -167,7 +171,6 @@ onMounted(() => {
 					>
 						{{ item }}
 					</span>
-					<br />
 				</div>
 				<el-input ref="inputRef" v-model="text" spellcheck="false" @compositionstart="inputStart" @compositionend="inputEnd" />
 			</div>
@@ -183,6 +186,9 @@ onMounted(() => {
 <style scoped lang="scss">
 :deep(.el-input__wrapper) {
 	padding: 1px 0px;
+	border-radius: 0;
+	box-shadow: none;
+	border-bottom: 1px dashed #8c846d;
 }
 
 .classText {
@@ -235,11 +241,10 @@ onMounted(() => {
 		}
 		.chatBox {
 			position: relative;
-			z-index: 10;
+			transform-style: preserve-3d;
 			.print {
 				position: relative;
-				z-index: 10;
-				padding-bottom: 20px;
+				padding-bottom: 12px;
 			}
 		}
 	}
@@ -255,10 +260,32 @@ onMounted(() => {
 		position: absolute;
 		top: 0;
 		left: 50%;
-		transform: translate(-50%, calc(-100% + 0px));
-		z-index: 0;
+		transform: translate(-50%, calc(-100% + 0px)) !important;
 		&[data-paper="0"] {
 			padding: 0;
+		}
+		transform-style: preserve-3d;
+		&::before,
+		&::after {
+			content: "";
+			position: absolute;
+			width: 100%;
+			height: 98%;
+			z-index: -1;
+		}
+		&.stacked1::before {
+			background-color: #c4b2a1;
+			top: 4px;
+			left: -5px;
+			transform: translateZ(-1px) rotate(-2.5deg);
+			box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+		}
+		&.stacked2::after {
+			background-color: #c4b2a1;
+			top: 1px;
+			right: -5px;
+			transform: translateZ(-1px) rotate(1.4deg);
+			box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
 		}
 	}
 }

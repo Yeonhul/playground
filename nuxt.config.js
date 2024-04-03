@@ -35,7 +35,8 @@ export default defineNuxtConfig({
 		"@nuxtjs/eslint-module",
 		"@vueuse/nuxt", // https://vueuse.org/guide/#nuxt
 		"@pinia/nuxt", // https://pinia.vuejs.org/ssr/nuxt.html
-		"@element-plus/nuxt" // https://nuxt.com/modules/element-plus | https://element-plus.org/en-US
+		"@element-plus/nuxt", // https://nuxt.com/modules/element-plus | https://element-plus.org/en-US
+		"@formkit/auto-animate/nuxt"
 	],
 	elementPlus: {
 		/* options */

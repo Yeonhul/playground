@@ -17,6 +17,7 @@
         "node": "18.x"
     },
     "dependencies": {
+        "@formkit/auto-animate": "^0.8.1",
         "@pinia/nuxt": "^0.5.1",
         "lodash-es": "^4.17.21",
         "nuxt": "^3.10.2",
